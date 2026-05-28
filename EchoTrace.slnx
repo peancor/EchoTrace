@@ -1,3 +1,7 @@
 <Solution>
-  <Project Path="EchoTrace/EchoTrace.csproj" />
+  <Project Path="src/EchoTrace.App/EchoTrace.App.csproj" />
+  <Project Path="src/EchoTrace.Core/EchoTrace.Core.csproj" />
+  <Project Path="src/EchoTrace.Serial/EchoTrace.Serial.csproj" />
+  <Project Path="src/EchoTrace.Storage/EchoTrace.Storage.csproj" />
+  <Project Path="tests/EchoTrace.Core.Tests/EchoTrace.Core.Tests.csproj" />
 </Solution>

@@ -1,0 +1,294 @@
+<Window x:Class="EchoTrace.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:plot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+        Title="EchoTrace" Height="900" Width="1480"
+        MinHeight="760" MinWidth="1180"
+        Background="#0D1117"
+        FontFamily="Segoe UI">
+    <Window.Resources>
+        <SolidColorBrush x:Key="PanelBrush" Color="#111A22" />
+        <SolidColorBrush x:Key="PanelAltBrush" Color="#16212B" />
+        <SolidColorBrush x:Key="BorderBrushMuted" Color="#263746" />
+        <SolidColorBrush x:Key="TextBrush" Color="#E7EDF3" />
+        <SolidColorBrush x:Key="MutedTextBrush" Color="#92A3B3" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#4DB6AC" />
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+
+        <Style x:Key="Panel" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushMuted}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+        </Style>
+
+        <Style x:Key="MetricPanel" TargetType="Border" BasedOn="{StaticResource Panel}">
+            <Setter Property="Padding" Value="14" />
+            <Setter Property="Margin" Value="0,0,10,0" />
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="Margin" Value="4,0" />
+            <Setter Property="Background" Value="#22313D" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="BorderBrush" Value="#385061" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="MinWidth" Value="116" />
+            <Setter Property="Margin" Value="4,0" />
+            <Setter Property="Padding" Value="7,4" />
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="MinWidth" Value="120" />
+            <Setter Property="Margin" Value="4,0" />
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="Background" Value="#0F171F" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="BorderBrush" Value="#314554" />
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="10,0,0,0" />
+        </Style>
+
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushMuted}" />
+            <Setter Property="GridLinesVisibility" Value="Horizontal" />
+            <Setter Property="HorizontalGridLinesBrush" Value="#253746" />
+            <Setter Property="RowBackground" Value="#111A22" />
+            <Setter Property="AlternatingRowBackground" Value="#15212B" />
+            <Setter Property="HeadersVisibility" Value="Column" />
+            <Setter Property="CanUserAddRows" Value="False" />
+            <Setter Property="CanUserDeleteRows" Value="False" />
+            <Setter Property="IsReadOnly" Value="True" />
+        </Style>
+
+        <Style TargetType="ProgressBar">
+            <Setter Property="Height" Value="8" />
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+            <Setter Property="Background" Value="#263746" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="150" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" LastChildFill="False">
+            <StackPanel DockPanel.Dock="Left">
+                <TextBlock Text="EchoTrace" FontSize="34" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding StatusText}" Foreground="{StaticResource MutedTextBrush}" Margin="1,4,0,0" />
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <ComboBox ItemsSource="{Binding SourceModes}" SelectedItem="{Binding SelectedSourceMode}" />
+                <ComboBox ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}" />
+                <Button Content="{Binding ConnectButtonText}" Command="{Binding ToggleConnectionCommand}" />
+                <Button Content="{Binding CaptureButtonText}" Command="{Binding ToggleCaptureCommand}" />
+                <Button Content="Export CSV" Command="{Binding ExportCommand}" />
+                <Button Content="Refresh" Command="{Binding RefreshPortsCommand}" />
+            </StackPanel>
+        </DockPanel>
+
+        <UniformGrid Grid.Row="1" Columns="6" Margin="0,16,0,14">
+            <Border Style="{StaticResource MetricPanel}">
+                <StackPanel>
+                    <TextBlock Text="Events/s" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock Text="{Binding EventsPerSecond}" FontSize="28" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource MetricPanel}">
+                <StackPanel>
+                    <TextBlock Text="Total events" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock Text="{Binding TotalEvents}" FontSize="28" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource MetricPanel}">
+                <StackPanel>
+                    <TextBlock Text="Devices" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock FontSize="28" FontWeight="SemiBold">
+                        <Run Text="{Binding VisibleDeviceCount, Mode=OneWay}" />
+                        <Run Text="/" Foreground="{StaticResource MutedTextBrush}" />
+                        <Run Text="{Binding DeviceCount, Mode=OneWay}" Foreground="{StaticResource MutedTextBrush}" />
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource MetricPanel}">
+                <StackPanel>
+                    <TextBlock Text="Connection" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock Text="{Binding ConnectionStateText}" FontSize="20" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource MetricPanel}">
+                <StackPanel>
+                    <TextBlock Text="Capture" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock Text="{Binding CaptureStateText}" FontSize="20" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource MetricPanel}" Margin="0">
+                <StackPanel>
+                    <TextBlock Text="Strongest" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock Text="{Binding StrongestDeviceText}" FontSize="17" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <Border Grid.Row="2" Style="{StaticResource Panel}" Padding="10" Margin="0,0,0,14">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <TextBlock Text="Filter" Foreground="{StaticResource MutedTextBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBox Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" Width="210" />
+                    <TextBlock Text="Min RSSI" Foreground="{StaticResource MutedTextBrush}" VerticalAlignment="Center" Margin="14,0,6,0" />
+                    <TextBox Text="{Binding MinimumRssiText, UpdateSourceTrigger=PropertyChanged}" Width="70" />
+                    <CheckBox Content="Present only" IsChecked="{Binding ShowPresentOnly}" />
+                    <Button Content="Clear" Command="{Binding ClearFiltersCommand}" Margin="10,0,0,0" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <TextBlock Text="Window" Foreground="{StaticResource MutedTextBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <ComboBox ItemsSource="{Binding TimeWindowOptions}" SelectedItem="{Binding SelectedTimeWindow}" />
+                    <Button Content="{Binding ChartPauseButtonText}" Command="{Binding ToggleChartPauseCommand}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.55*" />
+                <ColumnDefinition Width="1.15*" />
+                <ColumnDefinition Width="330" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource Panel}" Padding="1">
+                <DataGrid ItemsSource="{Binding FilteredDevices}"
+                          SelectedItem="{Binding SelectedDevice}"
+                          AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Receiver" Binding="{Binding ReceiverId, Mode=OneWay}" Width="80" />
+                        <DataGridTextColumn Header="Address" Binding="{Binding Address, Mode=OneWay}" Width="160" />
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name, Mode=OneWay}" Width="*" />
+                        <DataGridTextColumn Header="RSSI" Binding="{Binding CurrentRssi, Mode=OneWay}" Width="62" />
+                        <DataGridTemplateColumn Header="Signal" Width="105">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding SignalState}" FontSize="11" Foreground="{StaticResource MutedTextBrush}" />
+                                        <ProgressBar Value="{Binding SignalPercent, Mode=OneWay}" Maximum="100" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Avg" Binding="{Binding RssiAvgText, Mode=OneWay}" Width="58" />
+                        <DataGridTextColumn Header="Seen" Binding="{Binding SeenCount, Mode=OneWay}" Width="62" />
+                        <DataGridTextColumn Header="Last" Binding="{Binding LastSeenLocal, Mode=OneWay}" Width="92" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <Grid Grid.Column="1" Margin="14,0,14,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" Style="{StaticResource Panel}" Padding="8">
+                    <plot:WpfPlot x:Name="RssiPlot" />
+                </Border>
+                <Border Grid.Row="2" Style="{StaticResource Panel}" Padding="8">
+                    <plot:WpfPlot x:Name="EventRatePlot" />
+                </Border>
+            </Grid>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1.1*" />
+                    <RowDefinition Height="12" />
+                    <RowDefinition Height="1.2*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource Panel}" Padding="14">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="Device detail" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12" />
+                        <StackPanel>
+                            <TextBlock Text="{Binding SelectedDevice.DisplayName}" FontSize="22" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding SelectedDevice.Address}" Foreground="{StaticResource MutedTextBrush}" Margin="0,2,0,12" />
+                            <UniformGrid Columns="2" Rows="4">
+                                <TextBlock Text="RSSI" Foreground="{StaticResource MutedTextBrush}" />
+                                <TextBlock Text="{Binding SelectedDevice.CurrentRssi}" FontWeight="SemiBold" />
+                                <TextBlock Text="Average" Foreground="{StaticResource MutedTextBrush}" />
+                                <TextBlock Text="{Binding SelectedDevice.RssiAvgText}" FontWeight="SemiBold" />
+                                <TextBlock Text="Min / Max" Foreground="{StaticResource MutedTextBrush}" />
+                                <TextBlock>
+                                    <Run Text="{Binding SelectedDevice.RssiMin, Mode=OneWay}" />
+                                    <Run Text=" / " />
+                                    <Run Text="{Binding SelectedDevice.RssiMax, Mode=OneWay}" />
+                                </TextBlock>
+                                <TextBlock Text="Seen" Foreground="{StaticResource MutedTextBrush}" />
+                                <TextBlock Text="{Binding SelectedDevice.SeenCount}" FontWeight="SemiBold" />
+                            </UniformGrid>
+                            <TextBlock Text="First seen" Foreground="{StaticResource MutedTextBrush}" Margin="0,14,0,2" />
+                            <TextBlock Text="{Binding SelectedDevice.FirstSeenLocal}" />
+                            <TextBlock Text="Last seen" Foreground="{StaticResource MutedTextBrush}" Margin="0,10,0,2" />
+                            <TextBlock Text="{Binding SelectedDevice.LastSeenLocal}" />
+                            <ProgressBar Value="{Binding SelectedDevice.SignalPercent, Mode=OneWay}" Maximum="100" Margin="0,16,0,4" Height="10" />
+                            <TextBlock Text="{Binding SelectedDevice.SignalState}" Foreground="{StaticResource MutedTextBrush}" />
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource Panel}" Padding="14">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="RSSI ranking" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10" />
+                        <ListBox ItemsSource="{Binding RankedDevices}"
+                                 SelectedItem="{Binding SelectedDevice}"
+                                 Background="#111A22"
+                                 BorderThickness="0"
+                                 Foreground="{StaticResource TextBrush}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="58" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Address}" Foreground="{StaticResource MutedTextBrush}" FontSize="11" />
+                                            <ProgressBar Value="{Binding SignalPercent, Mode=OneWay}" Maximum="100" Margin="0,4,10,0" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding CurrentRssi}" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="4" Style="{StaticResource Panel}" Margin="0,14,0,0" Padding="12">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="Activity" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
+                <ListBox ItemsSource="{Binding ActivityLog}"
+                         Background="#111A22"
+                         Foreground="#D5DEE7"
+                         BorderThickness="0" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
