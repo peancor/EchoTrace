@@ -24,7 +24,10 @@ The simulator and serial reader feed the same parser and aggregation path, so UI
 - `MainWindow` derives from `Wpf.Ui.Controls.FluentWindow`.
 - The live BLE dashboard remains in `MainWindow` for now so the ScottPlot controls, serial reader, and capture lifecycle stay stable during the migration.
 - `src/EchoTrace.App/Views/Pages/` contains page targets for the planned shell split: `DashboardPage`, `SessionsPage`, `ReceiversPage`, and `SettingsPage`.
-- `MainViewModel.ShellSections` is the current navigation model. Only `Dashboard` is enabled in V1; the other sections are intentionally present but disabled until their pages own real workflows.
+- `MainViewModel.ShellSections` is the current navigation model. `Dashboard` and `Settings` are enabled; `Sessions` and `Receivers` are intentionally present but disabled until their pages own real workflows.
+- `Settings` exposes general app preferences, starting with the application theme.
+- Supported themes are `Dark` and `Light`. `MainWindow` applies WPF UI's `ApplicationThemeManager` and then updates EchoTrace-specific brushes used by panels, tables, activity lists, and ScottPlot.
+- ScottPlot rendering is theme-aware; chart backgrounds, axes, grid lines, legends, and series colors are recalculated whenever the theme changes.
 
 ## Dashboard V1
 

@@ -5,25 +5,35 @@
                  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
                  Title="EchoTrace" Height="900" Width="1480"
                  MinHeight="760" MinWidth="1180"
-                 Background="#0D1117"
+                 Background="{DynamicResource EchoAppBackgroundBrush}"
                  ExtendsContentIntoTitleBar="True"
                  FontFamily="Segoe UI">
     <ui:FluentWindow.Resources>
-        <SolidColorBrush x:Key="PanelBrush" Color="#111A22" />
-        <SolidColorBrush x:Key="PanelAltBrush" Color="#16212B" />
-        <SolidColorBrush x:Key="BorderBrushMuted" Color="#263746" />
-        <SolidColorBrush x:Key="TextBrush" Color="#E7EDF3" />
-        <SolidColorBrush x:Key="MutedTextBrush" Color="#92A3B3" />
-        <SolidColorBrush x:Key="AccentBrush" Color="#4DB6AC" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <SolidColorBrush x:Key="EchoAppBackgroundBrush" Color="#0D1117" />
+        <SolidColorBrush x:Key="EchoPanelBrush" Color="#111A22" />
+        <SolidColorBrush x:Key="EchoPanelAltBrush" Color="#16212B" />
+        <SolidColorBrush x:Key="EchoBorderBrush" Color="#263746" />
+        <SolidColorBrush x:Key="EchoTextBrush" Color="#E7EDF3" />
+        <SolidColorBrush x:Key="EchoMutedTextBrush" Color="#92A3B3" />
+        <SolidColorBrush x:Key="EchoAccentBrush" Color="#4DB6AC" />
+        <SolidColorBrush x:Key="EchoInputBackgroundBrush" Color="#0F171F" />
+        <SolidColorBrush x:Key="EchoComboDropDownBackgroundBrush" Color="#F8FAFC" />
+        <SolidColorBrush x:Key="EchoComboDropDownHoverBrush" Color="#DCEBFA" />
+        <SolidColorBrush x:Key="EchoComboDropDownSelectedBrush" Color="#CFE7E4" />
+        <SolidColorBrush x:Key="EchoComboTextBrush" Color="#0F172A" />
+        <SolidColorBrush x:Key="EchoGridLineBrush" Color="#253746" />
+        <SolidColorBrush x:Key="EchoListBackgroundBrush" Color="#111A22" />
+        <SolidColorBrush x:Key="EchoActivityTextBrush" Color="#D5DEE7" />
 
         <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource EchoTextBrush}" />
             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         </Style>
 
         <Style x:Key="Panel" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushMuted}" />
+            <Setter Property="Background" Value="{DynamicResource EchoPanelBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource EchoBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="6" />
         </Style>
@@ -37,45 +47,77 @@
             <Setter Property="MinWidth" Value="116" />
             <Setter Property="Margin" Value="4,0" />
             <Setter Property="Padding" Value="7,4" />
+            <Setter Property="Background" Value="{DynamicResource EchoInputBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource EchoComboTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource EchoBorderBrush}" />
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="{DynamicResource EchoComboDropDownBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource EchoComboTextBrush}" />
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="MinHeight" Value="28" />
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource EchoComboDropDownHoverBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource EchoComboTextBrush}" />
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource EchoComboDropDownSelectedBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource EchoComboTextBrush}" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style TargetType="TextBox">
             <Setter Property="MinWidth" Value="120" />
             <Setter Property="Margin" Value="4,0" />
             <Setter Property="Padding" Value="8,5" />
-            <Setter Property="Background" Value="#0F171F" />
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-            <Setter Property="BorderBrush" Value="#314554" />
+            <Setter Property="Background" Value="{DynamicResource EchoInputBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource EchoTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource EchoBorderBrush}" />
         </Style>
 
         <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource EchoTextBrush}" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Margin" Value="10,0,0,0" />
         </Style>
 
         <Style TargetType="DataGrid">
-            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushMuted}" />
+            <Setter Property="Background" Value="{DynamicResource EchoPanelBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource EchoTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource EchoBorderBrush}" />
             <Setter Property="GridLinesVisibility" Value="Horizontal" />
-            <Setter Property="HorizontalGridLinesBrush" Value="#253746" />
-            <Setter Property="RowBackground" Value="#111A22" />
-            <Setter Property="AlternatingRowBackground" Value="#15212B" />
+            <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource EchoGridLineBrush}" />
+            <Setter Property="RowBackground" Value="{DynamicResource EchoPanelBrush}" />
+            <Setter Property="AlternatingRowBackground" Value="{DynamicResource EchoPanelAltBrush}" />
             <Setter Property="HeadersVisibility" Value="Column" />
             <Setter Property="CanUserAddRows" Value="False" />
             <Setter Property="CanUserDeleteRows" Value="False" />
             <Setter Property="IsReadOnly" Value="True" />
         </Style>
 
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource EchoPanelAltBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource EchoTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource EchoBorderBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,1,1" />
+            <Setter Property="Padding" Value="8,7" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
         <Style TargetType="ProgressBar">
             <Setter Property="Height" Value="8" />
-            <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
-            <Setter Property="Background" Value="#263746" />
+            <Setter Property="Foreground" Value="{DynamicResource EchoAccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource EchoGridLineBrush}" />
         </Style>
         <Style TargetType="ui:Button">
             <Setter Property="Margin" Value="4,0" />
             <Setter Property="Padding" Value="12,7" />
+            <Setter Property="Background" Value="{DynamicResource EchoInputBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource EchoTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource EchoBorderBrush}" />
         </Style>
     </ui:FluentWindow.Resources>
 
@@ -101,7 +143,7 @@
             <DockPanel Grid.Row="1" LastChildFill="False" Margin="0,12,0,0">
                 <StackPanel DockPanel.Dock="Left">
                     <TextBlock Text="EchoTrace" FontSize="34" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding StatusText}" Foreground="{StaticResource MutedTextBrush}" Margin="1,4,0,0" />
+                    <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource EchoMutedTextBrush}" Margin="1,4,0,0" />
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                 <ComboBox ItemsSource="{Binding SourceModes}" SelectedItem="{Binding SelectedSourceMode}" />
@@ -127,7 +169,7 @@
             <DockPanel LastChildFill="True">
                 <TextBlock DockPanel.Dock="Right"
                            Text="{Binding ShellStatusText}"
-                           Foreground="{StaticResource MutedTextBrush}"
+                           Foreground="{DynamicResource EchoMutedTextBrush}"
                            VerticalAlignment="Center"
                            Margin="12,0,4,0" />
                 <ListBox ItemsSource="{Binding ShellSections}"
@@ -152,7 +194,7 @@
                         <DataTemplate>
                             <StackPanel MinWidth="118">
                                 <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
-                                <TextBlock Text="{Binding Description}" Foreground="{StaticResource MutedTextBrush}" FontSize="11" />
+                                <TextBlock Text="{Binding Description}" Foreground="{DynamicResource EchoMutedTextBrush}" FontSize="11" />
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -160,55 +202,62 @@
             </DockPanel>
         </Border>
 
-        <UniformGrid Grid.Row="2" Columns="6" Margin="0,0,0,14">
+        <UniformGrid Grid.Row="2"
+                     Columns="6"
+                     Margin="0,0,0,14"
+                     Visibility="{Binding IsDashboardSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border Style="{StaticResource MetricPanel}">
                 <StackPanel>
-                    <TextBlock Text="Events/s" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock Text="Events/s" Foreground="{DynamicResource EchoMutedTextBrush}" />
                     <TextBlock Text="{Binding EventsPerSecond}" FontSize="28" FontWeight="SemiBold" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource MetricPanel}">
                 <StackPanel>
-                    <TextBlock Text="Total events" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock Text="Total events" Foreground="{DynamicResource EchoMutedTextBrush}" />
                     <TextBlock Text="{Binding TotalEvents}" FontSize="28" FontWeight="SemiBold" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource MetricPanel}">
                 <StackPanel>
-                    <TextBlock Text="Devices" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock Text="Devices" Foreground="{DynamicResource EchoMutedTextBrush}" />
                     <TextBlock FontSize="28" FontWeight="SemiBold">
                         <Run Text="{Binding VisibleDeviceCount, Mode=OneWay}" />
-                        <Run Text="/" Foreground="{StaticResource MutedTextBrush}" />
-                        <Run Text="{Binding DeviceCount, Mode=OneWay}" Foreground="{StaticResource MutedTextBrush}" />
+                        <Run Text="/" Foreground="{DynamicResource EchoMutedTextBrush}" />
+                        <Run Text="{Binding DeviceCount, Mode=OneWay}" Foreground="{DynamicResource EchoMutedTextBrush}" />
                     </TextBlock>
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource MetricPanel}">
                 <StackPanel>
-                    <TextBlock Text="Connection" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock Text="Connection" Foreground="{DynamicResource EchoMutedTextBrush}" />
                     <TextBlock Text="{Binding ConnectionStateText}" FontSize="20" FontWeight="SemiBold" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource MetricPanel}">
                 <StackPanel>
-                    <TextBlock Text="Capture" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock Text="Capture" Foreground="{DynamicResource EchoMutedTextBrush}" />
                     <TextBlock Text="{Binding CaptureStateText}" FontSize="20" FontWeight="SemiBold" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource MetricPanel}" Margin="0">
                 <StackPanel>
-                    <TextBlock Text="Strongest" Foreground="{StaticResource MutedTextBrush}" />
+                    <TextBlock Text="Strongest" Foreground="{DynamicResource EchoMutedTextBrush}" />
                     <TextBlock Text="{Binding StrongestDeviceText}" FontSize="17" FontWeight="SemiBold" />
                 </StackPanel>
             </Border>
         </UniformGrid>
 
-        <Border Grid.Row="3" Style="{StaticResource Panel}" Padding="10" Margin="0,0,0,14">
+        <Border Grid.Row="3"
+                Style="{StaticResource Panel}"
+                Padding="10"
+                Margin="0,0,0,14"
+                Visibility="{Binding IsDashboardSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
             <DockPanel LastChildFill="False">
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                    <TextBlock Text="Filter" Foreground="{StaticResource MutedTextBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Text="Filter" Foreground="{DynamicResource EchoMutedTextBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
                     <TextBox Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" Width="210" />
-                    <TextBlock Text="Min RSSI" Foreground="{StaticResource MutedTextBrush}" VerticalAlignment="Center" Margin="14,0,6,0" />
+                    <TextBlock Text="Min RSSI" Foreground="{DynamicResource EchoMutedTextBrush}" VerticalAlignment="Center" Margin="14,0,6,0" />
                     <TextBox Text="{Binding MinimumRssiText, UpdateSourceTrigger=PropertyChanged}" Width="70" />
                     <CheckBox Content="Present only" IsChecked="{Binding ShowPresentOnly}" />
                     <ui:Button Content="Clear"
@@ -217,7 +266,7 @@
                                Margin="10,0,0,0" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                    <TextBlock Text="Window" Foreground="{StaticResource MutedTextBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Text="Window" Foreground="{DynamicResource EchoMutedTextBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
                     <ComboBox ItemsSource="{Binding TimeWindowOptions}" SelectedItem="{Binding SelectedTimeWindow}" />
                     <ui:Button Content="{Binding ChartPauseButtonText}"
                                Icon="{ui:SymbolIcon Symbol=Pause24}"
@@ -226,7 +275,8 @@
             </DockPanel>
         </Border>
 
-        <Grid Grid.Row="4">
+        <Grid Grid.Row="4"
+              Visibility="{Binding IsDashboardSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.55*" />
                 <ColumnDefinition Width="1.15*" />
@@ -246,7 +296,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding SignalState}" FontSize="11" Foreground="{StaticResource MutedTextBrush}" />
+                                        <TextBlock Text="{Binding SignalState}" FontSize="11" Foreground="{DynamicResource EchoMutedTextBrush}" />
                                         <ProgressBar Value="{Binding SignalPercent, Mode=OneWay}" Maximum="100" />
                                     </StackPanel>
                                 </DataTemplate>
@@ -285,27 +335,27 @@
                         <TextBlock DockPanel.Dock="Top" Text="Device detail" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12" />
                         <StackPanel>
                             <TextBlock Text="{Binding SelectedDevice.DisplayName}" FontSize="22" FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding SelectedDevice.Address}" Foreground="{StaticResource MutedTextBrush}" Margin="0,2,0,12" />
+                            <TextBlock Text="{Binding SelectedDevice.Address}" Foreground="{DynamicResource EchoMutedTextBrush}" Margin="0,2,0,12" />
                             <UniformGrid Columns="2" Rows="4">
-                                <TextBlock Text="RSSI" Foreground="{StaticResource MutedTextBrush}" />
+                                <TextBlock Text="RSSI" Foreground="{DynamicResource EchoMutedTextBrush}" />
                                 <TextBlock Text="{Binding SelectedDevice.CurrentRssi}" FontWeight="SemiBold" />
-                                <TextBlock Text="Average" Foreground="{StaticResource MutedTextBrush}" />
+                                <TextBlock Text="Average" Foreground="{DynamicResource EchoMutedTextBrush}" />
                                 <TextBlock Text="{Binding SelectedDevice.RssiAvgText}" FontWeight="SemiBold" />
-                                <TextBlock Text="Min / Max" Foreground="{StaticResource MutedTextBrush}" />
+                                <TextBlock Text="Min / Max" Foreground="{DynamicResource EchoMutedTextBrush}" />
                                 <TextBlock>
                                     <Run Text="{Binding SelectedDevice.RssiMin, Mode=OneWay}" />
                                     <Run Text=" / " />
                                     <Run Text="{Binding SelectedDevice.RssiMax, Mode=OneWay}" />
                                 </TextBlock>
-                                <TextBlock Text="Seen" Foreground="{StaticResource MutedTextBrush}" />
+                                <TextBlock Text="Seen" Foreground="{DynamicResource EchoMutedTextBrush}" />
                                 <TextBlock Text="{Binding SelectedDevice.SeenCount}" FontWeight="SemiBold" />
                             </UniformGrid>
-                            <TextBlock Text="First seen" Foreground="{StaticResource MutedTextBrush}" Margin="0,14,0,2" />
+                            <TextBlock Text="First seen" Foreground="{DynamicResource EchoMutedTextBrush}" Margin="0,14,0,2" />
                             <TextBlock Text="{Binding SelectedDevice.FirstSeenLocal}" />
-                            <TextBlock Text="Last seen" Foreground="{StaticResource MutedTextBrush}" Margin="0,10,0,2" />
+                            <TextBlock Text="Last seen" Foreground="{DynamicResource EchoMutedTextBrush}" Margin="0,10,0,2" />
                             <TextBlock Text="{Binding SelectedDevice.LastSeenLocal}" />
                             <ProgressBar Value="{Binding SelectedDevice.SignalPercent, Mode=OneWay}" Maximum="100" Margin="0,16,0,4" Height="10" />
-                            <TextBlock Text="{Binding SelectedDevice.SignalState}" Foreground="{StaticResource MutedTextBrush}" />
+                            <TextBlock Text="{Binding SelectedDevice.SignalState}" Foreground="{DynamicResource EchoMutedTextBrush}" />
                         </StackPanel>
                     </DockPanel>
                 </Border>
@@ -315,9 +365,9 @@
                         <TextBlock DockPanel.Dock="Top" Text="RSSI ranking" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10" />
                         <ListBox ItemsSource="{Binding RankedDevices}"
                                  SelectedItem="{Binding SelectedDevice}"
-                                 Background="#111A22"
+                                 Background="{DynamicResource EchoListBackgroundBrush}"
                                  BorderThickness="0"
-                                 Foreground="{StaticResource TextBrush}">
+                                 Foreground="{DynamicResource EchoTextBrush}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Margin="0,4">
@@ -327,7 +377,7 @@
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0">
                                             <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
-                                            <TextBlock Text="{Binding Address}" Foreground="{StaticResource MutedTextBrush}" FontSize="11" />
+                                            <TextBlock Text="{Binding Address}" Foreground="{DynamicResource EchoMutedTextBrush}" FontSize="11" />
                                             <ProgressBar Value="{Binding SignalPercent, Mode=OneWay}" Maximum="100" Margin="0,4,10,0" />
                                         </StackPanel>
                                         <TextBlock Grid.Column="1" Text="{Binding CurrentRssi}" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" />
@@ -340,14 +390,100 @@
             </Grid>
         </Grid>
 
-        <Border Grid.Row="5" Style="{StaticResource Panel}" Margin="0,14,0,0" Padding="12">
+        <Border Grid.Row="5"
+                Style="{StaticResource Panel}"
+                Margin="0,14,0,0"
+                Padding="12"
+                Visibility="{Binding IsDashboardSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
             <DockPanel>
                 <TextBlock DockPanel.Dock="Top" Text="Activity" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
                 <ListBox ItemsSource="{Binding ActivityLog}"
-                         Background="#111A22"
-                         Foreground="#D5DEE7"
+                         Background="{DynamicResource EchoListBackgroundBrush}"
+                         Foreground="{DynamicResource EchoActivityTextBrush}"
                          BorderThickness="0" />
             </DockPanel>
         </Border>
+
+        <Grid Grid.Row="2"
+              Grid.RowSpan="4"
+              Visibility="{Binding IsSettingsSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.4*" />
+                <ColumnDefinition Width="18" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource Panel}" Padding="24">
+                <StackPanel>
+                    <TextBlock Text="Settings" FontSize="32" FontWeight="SemiBold" />
+                    <TextBlock Text="General EchoTrace preferences" Foreground="{DynamicResource EchoMutedTextBrush}" Margin="0,4,0,24" />
+
+                    <Border Style="{StaticResource Panel}" Background="{DynamicResource EchoPanelAltBrush}" Padding="18" Margin="0,0,0,16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="220" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Application theme" FontSize="18" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding ThemeDescription}" Foreground="{DynamicResource EchoMutedTextBrush}" Margin="0,4,18,0" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <ComboBox Grid.Column="1"
+                                      ItemsSource="{Binding ThemeOptions}"
+                                      SelectedItem="{Binding SelectedTheme}"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource Panel}" Background="{DynamicResource EchoPanelAltBrush}" Padding="18">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="220" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Default receiver" FontSize="18" FontWeight="SemiBold" />
+                                <TextBlock Text="Serial mode still prefers COM8 when it is available." Foreground="{DynamicResource EchoMutedTextBrush}" Margin="0,4,18,0" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding ReceiverText}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource Panel}" Padding="24">
+                <StackPanel>
+                    <TextBlock Text="Preview" FontSize="22" FontWeight="SemiBold" />
+                    <TextBlock Text="The dashboard, tables, controls, and ScottPlot charts use the same theme palette." Foreground="{DynamicResource EchoMutedTextBrush}" Margin="0,4,0,22" TextWrapping="Wrap" />
+                    <Border Background="{DynamicResource EchoPanelAltBrush}" BorderBrush="{DynamicResource EchoBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="18">
+                        <StackPanel>
+                            <TextBlock Text="{Binding SelectedTheme}" FontSize="34" FontWeight="SemiBold" />
+                            <TextBlock Text="Current theme" Foreground="{DynamicResource EchoMutedTextBrush}" Margin="0,2,0,18" />
+                            <ProgressBar Value="68" Maximum="100" Height="10" />
+                            <UniformGrid Columns="3" Margin="0,18,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="RSSI" Foreground="{DynamicResource EchoMutedTextBrush}" />
+                                    <TextBlock Text="-61" FontSize="22" FontWeight="SemiBold" />
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="Events/s" Foreground="{DynamicResource EchoMutedTextBrush}" />
+                                    <TextBlock Text="24" FontSize="22" FontWeight="SemiBold" />
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="State" Foreground="{DynamicResource EchoMutedTextBrush}" />
+                                    <TextBlock Text="Near" FontSize="22" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </ui:FluentWindow>

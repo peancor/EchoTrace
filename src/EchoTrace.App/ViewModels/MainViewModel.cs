@@ -25,6 +25,7 @@ public sealed class MainViewModel : ObservableObject
     private string _filterText = string.Empty;
     private string _minimumRssiText = "-100";
     private string _selectedTimeWindow = "30s";
+    private string _selectedTheme = "Dark";
     private string _statusText = "Ready";
     private int _eventsThisSecond;
     private int _eventsPerSecond;
@@ -86,11 +87,12 @@ public sealed class MainViewModel : ObservableObject
         new("dashboard", "Dashboard", "Live BLE", true),
         new("sessions", "Sessions", "Capture history", false),
         new("receivers", "Receivers", "COM and nodes", false),
-        new("settings", "Settings", "Thresholds", false)
+        new("settings", "Settings", "Theme and app", true)
     ];
 
     public ObservableCollection<string> SourceModes { get; } = ["Simulator", "Serial"];
     public ObservableCollection<string> TimeWindowOptions { get; } = ["10s", "30s", "2m", "5m"];
+    public ObservableCollection<string> ThemeOptions { get; } = ["Dark", "Light"];
     public ObservableCollection<string> Ports { get; } = [];
     public ObservableCollection<DeviceRowViewModel> Devices { get; } = [];
     public ObservableCollection<DeviceRowViewModel> FilteredDevices { get; } = [];
@@ -103,6 +105,7 @@ public sealed class MainViewModel : ObservableObject
     public AsyncCommand ExportCommand { get; }
     public AsyncCommand RefreshPortsCommand { get; }
     public event EventHandler? ChartChanged;
+    public event EventHandler? ThemeChanged;
 
     public ShellSectionViewModel? SelectedShellSection
     {
@@ -118,6 +121,24 @@ public sealed class MainViewModel : ObservableObject
             if (SetProperty(ref _selectedShellSection, value))
             {
                 OnPropertyChanged(nameof(ShellStatusText));
+                OnPropertyChanged(nameof(IsDashboardSelected));
+                OnPropertyChanged(nameof(IsSettingsSelected));
+            }
+        }
+    }
+
+    public string SelectedTheme
+    {
+        get => _selectedTheme;
+        set
+        {
+            if (SetProperty(ref _selectedTheme, value))
+            {
+                OnPropertyChanged(nameof(IsLightTheme));
+                OnPropertyChanged(nameof(ThemeDescription));
+                ThemeChanged?.Invoke(this, EventArgs.Empty);
+                ChartChanged?.Invoke(this, EventArgs.Empty);
+                AddActivity($"Theme changed to {SelectedTheme}.");
             }
         }
     }
@@ -238,6 +259,12 @@ public sealed class MainViewModel : ObservableObject
     public string StrongestDeviceText => RankedDevices.FirstOrDefault() is { } device ? $"{device.DisplayName} {device.CurrentRssi} dBm" : "No devices";
     public string SelectedChartTitle => SelectedDevice is null ? "Select a device" : $"{SelectedDevice.Name} {SelectedDevice.Address}";
     public string ShellStatusText => SelectedShellSection is null ? "Dashboard" : SelectedShellSection.Title;
+    public bool IsDashboardSelected => SelectedShellSection?.Key == "dashboard";
+    public bool IsSettingsSelected => SelectedShellSection?.Key == "settings";
+    public bool IsLightTheme => SelectedTheme == "Light";
+    public string ThemeDescription => IsLightTheme
+        ? "Light theme optimized for bright rooms and screenshots."
+        : "Dark theme optimized for lab benches and long captures.";
     public int TimeWindowSeconds => SelectedTimeWindow switch
     {
         "10s" => 10,
@@ -529,6 +556,10 @@ public sealed class MainViewModel : ObservableObject
 
         ReplaceCollection(FilteredDevices, filtered);
         ReplaceCollection(RankedDevices, filtered.Take(8));
+        if (SelectedDevice is null || !filtered.Contains(SelectedDevice))
+        {
+            SelectedDevice = filtered.FirstOrDefault();
+        }
         OnPropertyChanged(nameof(VisibleDeviceCount));
         OnPropertyChanged(nameof(StrongestDeviceText));
     }
