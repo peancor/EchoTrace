@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
+using EchoTrace.App.Services;
 using EchoTrace.Core;
 using EchoTrace.Serial;
 using EchoTrace.Storage;
@@ -15,6 +16,8 @@ public sealed class MainViewModel : ObservableObject
     private readonly Dictionary<string, List<RssiPoint>> _rssiPoints = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<RssiPoint> _eventRatePoints = [];
     private readonly List<AdvertisementEvent> _eventBuffer = [];
+    private readonly AppSettingsStore _settingsStore = new();
+    private readonly AppSettings _settings;
     private readonly CaptureStore _store;
     private readonly DispatcherTimer _statsTimer;
     private CancellationTokenSource? _connectionCts;
@@ -38,6 +41,14 @@ public sealed class MainViewModel : ObservableObject
 
     public MainViewModel()
     {
+        _settings = _settingsStore.Load();
+        _selectedTheme = NormalizeTheme(_settings.SelectedTheme);
+        _selectedSourceMode = SourceModes.Contains(_settings.SelectedSourceMode) ? _settings.SelectedSourceMode : "Simulator";
+        _selectedPort = _settings.SelectedPort;
+        _selectedTimeWindow = TimeWindowOptions.Contains(_settings.SelectedTimeWindow) ? _settings.SelectedTimeWindow : "30s";
+        _minimumRssiText = string.IsNullOrWhiteSpace(_settings.MinimumRssiText) ? "-100" : _settings.MinimumRssiText;
+        _showPresentOnly = _settings.ShowPresentOnly;
+
         string dbPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "EchoTrace",
@@ -134,6 +145,7 @@ public sealed class MainViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedTheme, value))
             {
+                PersistSettings();
                 OnPropertyChanged(nameof(IsLightTheme));
                 OnPropertyChanged(nameof(ThemeDescription));
                 ThemeChanged?.Invoke(this, EventArgs.Empty);
@@ -150,6 +162,7 @@ public sealed class MainViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedSourceMode, value))
             {
+                PersistSettings();
                 OnPropertyChanged(nameof(ReceiverText));
             }
         }
@@ -162,6 +175,7 @@ public sealed class MainViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedPort, value))
             {
+                PersistSettings();
                 OnPropertyChanged(nameof(ReceiverText));
             }
         }
@@ -186,6 +200,7 @@ public sealed class MainViewModel : ObservableObject
         {
             if (SetProperty(ref _minimumRssiText, value))
             {
+                PersistSettings();
                 ApplyFiltersAndRanking();
             }
         }
@@ -198,6 +213,7 @@ public sealed class MainViewModel : ObservableObject
         {
             if (SetProperty(ref _showPresentOnly, value))
             {
+                PersistSettings();
                 ApplyFiltersAndRanking();
             }
         }
@@ -210,6 +226,7 @@ public sealed class MainViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedTimeWindow, value))
             {
+                PersistSettings();
                 OnPropertyChanged(nameof(SelectedRssiPoints));
                 OnPropertyChanged(nameof(EventRatePoints));
                 OnPropertyChanged(nameof(TimeWindowSeconds));
@@ -616,6 +633,22 @@ public sealed class MainViewModel : ObservableObject
     }
 
     private static string Key(string receiverId, string address) => $"{receiverId}|{address}";
+
+    private void PersistSettings()
+    {
+        _settings.SelectedTheme = SelectedTheme;
+        _settings.SelectedSourceMode = SelectedSourceMode;
+        _settings.SelectedPort = SelectedPort;
+        _settings.SelectedTimeWindow = SelectedTimeWindow;
+        _settings.MinimumRssiText = MinimumRssiText;
+        _settings.ShowPresentOnly = ShowPresentOnly;
+        _settingsStore.Save(_settings);
+    }
+
+    private static string NormalizeTheme(string? theme)
+    {
+        return string.Equals(theme, "Light", StringComparison.OrdinalIgnoreCase) ? "Light" : "Dark";
+    }
 
     private static Task DispatchAsync(Action action)
     {

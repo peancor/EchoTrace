@@ -121,7 +121,8 @@
         </Style>
     </ui:FluentWindow.Resources>
 
-    <Grid Margin="18,8,18,18">
+    <Border Background="{DynamicResource EchoAppBackgroundBrush}" Padding="18,8,18,18">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -486,4 +487,5 @@
             </Border>
         </Grid>
     </Grid>
+    </Border>
 </ui:FluentWindow>

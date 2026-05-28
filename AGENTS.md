@@ -23,6 +23,7 @@ Main paths:
 
 Reference docs:
 
+- `README.md`: public project overview, quickstart, privacy notes, roadmap, and license summary.
 - `docs/architecture.md`: current system layout and data flow.
 - `docs/protocol.md`: JSON Lines wire protocol.
 - `docs/firmware.md`: NCS/Zephyr build and UF2 flashing workflow.
@@ -95,6 +96,7 @@ The app adds `ReceivedAtUtc` when a line is received. If this contract changes, 
 - `EchoTrace.App` uses the `WPF-UI` NuGet package. `App.xaml` owns WPF UI theme/control dictionaries, and `MainWindow` currently derives from `Wpf.Ui.Controls.FluentWindow`.
 - The live dashboard is still hosted in `MainWindow`; the page files under `Views/Pages` are navigation targets for the next shell split. Do not move the ScottPlot/serial lifecycle into a page without checking shutdown and navigation lifetime.
 - Theme support is split between WPF UI and EchoTrace resources. `MainViewModel.SelectedTheme` drives WPF UI's `ApplicationThemeManager`, local EchoTrace brushes, and ScottPlot palette updates. Keep charts readable in both Light and Dark whenever changing colors.
+- App UI preferences persist to `%LocalAppData%\EchoTrace\settings.json` through `EchoTrace.App.Services.AppSettingsStore`. Keep new general settings in that store unless they belong in capture/session storage.
 - Keep chart rendering timer-driven. Do not render once per BLE event; event bursts should update buffers and let the UI timer paint.
 - Keep dashboard docs aligned with `docs/architecture.md` when changing filters, charts, ranking, or detail panels.
 - Prefer focused tests in `tests/EchoTrace.Core.Tests` for parser, aggregation, storage, and any protocol evolution.
@@ -109,3 +111,4 @@ When a change modifies behavior, setup, protocol, build commands, hardware assum
 1. Update the relevant file in `docs/`.
 2. Update this `AGENTS.md` if a future agent would otherwise make the wrong assumption.
 3. Add or adjust tests when the change affects parser, aggregation, storage, or exports.
+4. Keep the public `README.md` aligned with user-facing setup, hardware, license, and privacy expectations.

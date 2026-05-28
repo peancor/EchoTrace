@@ -27,6 +27,8 @@ The simulator and serial reader feed the same parser and aggregation path, so UI
 - `MainViewModel.ShellSections` is the current navigation model. `Dashboard` and `Settings` are enabled; `Sessions` and `Receivers` are intentionally present but disabled until their pages own real workflows.
 - `Settings` exposes general app preferences, starting with the application theme.
 - Supported themes are `Dark` and `Light`. `MainWindow` applies WPF UI's `ApplicationThemeManager` and then updates EchoTrace-specific brushes used by panels, tables, activity lists, and ScottPlot.
+- App preferences are persisted as JSON in `%LocalAppData%\EchoTrace\settings.json`.
+- Persisted V1 preferences include theme, source mode, selected port, chart window, minimum RSSI text, and present-only filtering.
 - ScottPlot rendering is theme-aware; chart backgrounds, axes, grid lines, legends, and series colors are recalculated whenever the theme changes.
 
 ## Dashboard V1
