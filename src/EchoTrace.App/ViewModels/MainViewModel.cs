@@ -20,6 +20,7 @@ public sealed class MainViewModel : ObservableObject
     private readonly CaptureStore _store;
     private readonly Dispatcher _dispatcher;
     private readonly DispatcherTimer _statsTimer;
+    private readonly string? _savedSelectedDeviceKey;
     private CancellationTokenSource? _connectionCts;
     private CaptureSession? _currentSession;
     private DeviceRowViewModel? _selectedDevice;
@@ -39,6 +40,7 @@ public sealed class MainViewModel : ObservableObject
     private bool _showPresentOnly = true;
     private bool _isChartPaused;
     private bool _isShuttingDown;
+    private bool _restoreSavedDeviceSelection;
 
     public MainViewModel()
     {
@@ -50,6 +52,8 @@ public sealed class MainViewModel : ObservableObject
         _selectedTimeWindow = TimeWindowOptions.Contains(_settings.SelectedTimeWindow) ? _settings.SelectedTimeWindow : "30s";
         _minimumRssiText = string.IsNullOrWhiteSpace(_settings.MinimumRssiText) ? "-100" : _settings.MinimumRssiText;
         _showPresentOnly = _settings.ShowPresentOnly;
+        _savedSelectedDeviceKey = NormalizeDeviceKey(_settings.SelectedDeviceKey);
+        _restoreSavedDeviceSelection = _savedSelectedDeviceKey is not null;
 
         string dbPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -173,14 +177,7 @@ public sealed class MainViewModel : ObservableObject
     public string? SelectedPort
     {
         get => _selectedPort;
-        set
-        {
-            if (SetProperty(ref _selectedPort, value))
-            {
-                PersistSettings();
-                OnPropertyChanged(nameof(ReceiverText));
-            }
-        }
+        set => SetSelectedPort(value, persistSelection: true);
     }
 
     public string FilterText
@@ -252,20 +249,7 @@ public sealed class MainViewModel : ObservableObject
     public DeviceRowViewModel? SelectedDevice
     {
         get => _selectedDevice;
-        set
-        {
-            if (value is null && _selectedDevice is not null && FilteredDevices.Contains(_selectedDevice))
-            {
-                return;
-            }
-
-            if (SetProperty(ref _selectedDevice, value))
-            {
-                OnPropertyChanged(nameof(SelectedRssiPoints));
-                OnPropertyChanged(nameof(SelectedChartTitle));
-                ChartChanged?.Invoke(this, EventArgs.Empty);
-            }
-        }
+        set => SetSelectedDevice(value, persistSelection: true, clearPendingRestore: true);
     }
 
     public string StatusText { get => _statusText; private set => SetProperty(ref _statusText, value); }
@@ -374,6 +358,8 @@ public sealed class MainViewModel : ObservableObject
                 return;
             }
 
+            _settings.SelectedPort = SelectedPort;
+            PersistSettings();
             _ = Task.Run(() => ReadSerialAsync(SelectedPort, _connectionCts.Token));
         }
         else
@@ -521,9 +507,12 @@ public sealed class MainViewModel : ObservableObject
             Ports.Add(port);
         }
 
-        SelectedPort = previous is not null && Ports.Contains(previous)
+        string? selectedPort = previous is not null && Ports.Contains(previous)
             ? previous
+            : _settings.SelectedPort is not null && Ports.Contains(_settings.SelectedPort)
+                ? _settings.SelectedPort
             : Ports.FirstOrDefault(port => port.Equals("COM8", StringComparison.OrdinalIgnoreCase)) ?? Ports.FirstOrDefault();
+        SetSelectedPort(selectedPort, persistSelection: false);
         AddActivity(Ports.Count == 0 ? "No serial ports detected." : $"Detected ports: {string.Join(", ", Ports)}");
     }
 
@@ -535,9 +524,9 @@ public sealed class MainViewModel : ObservableObject
             row = new DeviceRowViewModel(summary);
             _deviceRows.Add(key, row);
             Devices.Add(row);
-            if (SelectedDevice is null)
+            if (!TryRestoreSavedDeviceSelection(key, row) && SelectedDevice is null)
             {
-                SelectedDevice = row;
+                SetSelectedDevice(row, persistSelection: false, clearPendingRestore: false);
             }
             OnPropertyChanged(nameof(DeviceCount));
             OnPropertyChanged(nameof(VisibleDeviceCount));
@@ -545,6 +534,7 @@ public sealed class MainViewModel : ObservableObject
         else
         {
             row.Apply(summary);
+            TryRestoreSavedDeviceSelection(key, row);
         }
     }
 
@@ -593,7 +583,9 @@ public sealed class MainViewModel : ObservableObject
 
         if (SelectedDevice is null || !filtered.Contains(SelectedDevice))
         {
-            SelectedDevice = filtered.FirstOrDefault();
+            DeviceRowViewModel? selectedDevice = filtered.FirstOrDefault(device => _restoreSavedDeviceSelection && Key(device.ReceiverId, device.Address).Equals(_savedSelectedDeviceKey, StringComparison.OrdinalIgnoreCase))
+                ?? filtered.FirstOrDefault();
+            SetSelectedDevice(selectedDevice, persistSelection: false, clearPendingRestore: false);
         }
 
         if (previousVisibleCount != FilteredDevices.Count)
@@ -673,11 +665,67 @@ public sealed class MainViewModel : ObservableObject
 
     private static string Key(string receiverId, string address) => $"{receiverId}|{address}";
 
+    private bool SetSelectedDevice(DeviceRowViewModel? value, bool persistSelection, bool clearPendingRestore)
+    {
+        if (value is null && _selectedDevice is not null && FilteredDevices.Contains(_selectedDevice))
+        {
+            return false;
+        }
+
+        if (!SetProperty(ref _selectedDevice, value, nameof(SelectedDevice)))
+        {
+            return false;
+        }
+
+        if (clearPendingRestore)
+        {
+            _restoreSavedDeviceSelection = false;
+        }
+
+        if (persistSelection && value is not null)
+        {
+            _settings.SelectedDeviceKey = Key(value.ReceiverId, value.Address);
+            PersistSettings();
+        }
+
+        OnPropertyChanged(nameof(SelectedRssiPoints));
+        OnPropertyChanged(nameof(SelectedChartTitle));
+        ChartChanged?.Invoke(this, EventArgs.Empty);
+        return true;
+    }
+
+    private bool TryRestoreSavedDeviceSelection(string key, DeviceRowViewModel row)
+    {
+        if (!_restoreSavedDeviceSelection ||
+            _savedSelectedDeviceKey is null ||
+            !key.Equals(_savedSelectedDeviceKey, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        _restoreSavedDeviceSelection = false;
+        SetSelectedDevice(row, persistSelection: true, clearPendingRestore: false);
+        return true;
+    }
+
+    private void SetSelectedPort(string? value, bool persistSelection)
+    {
+        if (SetProperty(ref _selectedPort, value, nameof(SelectedPort)))
+        {
+            if (persistSelection && !string.IsNullOrWhiteSpace(value))
+            {
+                _settings.SelectedPort = value;
+                PersistSettings();
+            }
+
+            OnPropertyChanged(nameof(ReceiverText));
+        }
+    }
+
     private void PersistSettings()
     {
         _settings.SelectedTheme = SelectedTheme;
         _settings.SelectedSourceMode = SelectedSourceMode;
-        _settings.SelectedPort = SelectedPort;
         _settings.SelectedTimeWindow = SelectedTimeWindow;
         _settings.MinimumRssiText = MinimumRssiText;
         _settings.ShowPresentOnly = ShowPresentOnly;
@@ -687,6 +735,11 @@ public sealed class MainViewModel : ObservableObject
     private static string NormalizeTheme(string? theme)
     {
         return string.Equals(theme, "Light", StringComparison.OrdinalIgnoreCase) ? "Light" : "Dark";
+    }
+
+    private static string? NormalizeDeviceKey(string? deviceKey)
+    {
+        return string.IsNullOrWhiteSpace(deviceKey) ? null : deviceKey;
     }
 
     private async Task DispatchAsync(Action action)

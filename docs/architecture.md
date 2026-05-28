@@ -28,7 +28,7 @@ The simulator and serial reader feed the same parser and aggregation path, so UI
 - `Settings` exposes general app preferences, starting with the application theme.
 - Supported themes are `Dark` and `Light`. `MainWindow` applies WPF UI's `ApplicationThemeManager` and then updates EchoTrace-specific brushes used by panels, tables, activity lists, and ScottPlot.
 - App preferences are persisted as JSON in `%LocalAppData%\EchoTrace\settings.json`.
-- Persisted V1 preferences include theme, source mode, selected port, chart window, minimum RSSI text, and present-only filtering.
+- Persisted V1 preferences include theme, source mode, selected port, last selected device key, chart window, minimum RSSI text, and present-only filtering.
 - ScottPlot rendering is theme-aware; chart backgrounds, axes, grid lines, legends, and series colors are recalculated whenever the theme changes.
 
 ## Dashboard V1
@@ -44,5 +44,6 @@ The WPF dashboard separates ingestion from rendering:
 - The right panel shows selected-device detail and an RSSI ranking for quick triage.
 - Live device lists use incremental `ObservableCollection` reconciliation instead of full clear/reload refreshes. Row view models are updated in place, the table keeps a stable receiver/name/address order, and only the RSSI ranking reorders by signal strength.
 - Device selection is preserved across live updates whenever the selected device still passes the active filters.
+- The last manually selected device is restored by `ReceiverId|Address` when that device appears again in the live stream.
 
 This keeps the UI responsive when the receiver emits many advertisements per second.
