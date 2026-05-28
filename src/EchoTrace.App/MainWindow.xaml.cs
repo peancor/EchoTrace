@@ -28,8 +28,7 @@ public partial class MainWindow : FluentWindow
                 RenderChart();
             }
         };
-        Loaded += async (_, _) => await _viewModel.InitializeAsync();
-        Closing += async (_, _) => await _viewModel.ShutdownAsync();
+
         _chartTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         _chartTimer.Tick += (_, _) =>
         {
@@ -37,6 +36,12 @@ public partial class MainWindow : FluentWindow
             {
                 RenderChart();
             }
+        };
+        Loaded += async (_, _) => await _viewModel.InitializeAsync();
+        Closing += async (_, _) =>
+        {
+            _chartTimer.Stop();
+            await _viewModel.ShutdownAsync();
         };
         _chartTimer.Start();
         ApplyAppTheme();

@@ -98,6 +98,7 @@ The app adds `ReceivedAtUtc` when a line is received. If this contract changes, 
 - Theme support is split between WPF UI and EchoTrace resources. `MainViewModel.SelectedTheme` drives WPF UI's `ApplicationThemeManager`, local EchoTrace brushes, and ScottPlot palette updates. Keep charts readable in both Light and Dark whenever changing colors.
 - App UI preferences persist to `%LocalAppData%\EchoTrace\settings.json` through `EchoTrace.App.Services.AppSettingsStore`. Keep new general settings in that store unless they belong in capture/session storage.
 - Keep chart rendering timer-driven. Do not render once per BLE event; event bursts should update buffers and let the UI timer paint.
+- `MainViewModel` captures the UI `Dispatcher` at construction and uses it for background serial/simulator callbacks. Do not use `Application.Current.Dispatcher` from background paths because `Application.Current` can be null during shutdown.
 - Keep live WPF collections incremental. Do not clear and rebuild `FilteredDevices` or `RankedDevices` during normal advertisement updates; reconcile items in place so row containers, selection, and charts remain stable.
 - Keep the main device table visually stable. The table uses receiver/name/address ordering, while the RSSI ranking is the section that should reorder by live signal strength.
 - Keep dashboard docs aligned with `docs/architecture.md` when changing filters, charts, ranking, or detail panels.

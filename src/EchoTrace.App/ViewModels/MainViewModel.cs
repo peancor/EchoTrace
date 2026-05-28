@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Windows;
 using System.Windows.Threading;
 using EchoTrace.App.Services;
 using EchoTrace.Core;
@@ -19,6 +18,7 @@ public sealed class MainViewModel : ObservableObject
     private readonly AppSettingsStore _settingsStore = new();
     private readonly AppSettings _settings;
     private readonly CaptureStore _store;
+    private readonly Dispatcher _dispatcher;
     private readonly DispatcherTimer _statsTimer;
     private CancellationTokenSource? _connectionCts;
     private CaptureSession? _currentSession;
@@ -38,9 +38,11 @@ public sealed class MainViewModel : ObservableObject
     private bool _isCapturing;
     private bool _showPresentOnly = true;
     private bool _isChartPaused;
+    private bool _isShuttingDown;
 
     public MainViewModel()
     {
+        _dispatcher = Dispatcher.CurrentDispatcher;
         _settings = _settingsStore.Load();
         _selectedTheme = NormalizeTheme(_settings.SelectedTheme);
         _selectedSourceMode = SourceModes.Contains(_settings.SelectedSourceMode) ? _settings.SelectedSourceMode : "Simulator";
@@ -334,6 +336,8 @@ public sealed class MainViewModel : ObservableObject
 
     public async Task ShutdownAsync()
     {
+        _isShuttingDown = true;
+        _statsTimer.Stop();
         await DisconnectAsync();
         if (_isCapturing && _currentSession is not null)
         {
@@ -685,8 +689,34 @@ public sealed class MainViewModel : ObservableObject
         return string.Equals(theme, "Light", StringComparison.OrdinalIgnoreCase) ? "Light" : "Dark";
     }
 
-    private static Task DispatchAsync(Action action)
+    private async Task DispatchAsync(Action action)
     {
-        return Application.Current.Dispatcher.InvokeAsync(action).Task;
+        if (_isShuttingDown || _dispatcher.HasShutdownStarted || _dispatcher.HasShutdownFinished)
+        {
+            return;
+        }
+
+        try
+        {
+            if (_dispatcher.CheckAccess())
+            {
+                action();
+                return;
+            }
+
+            await _dispatcher.InvokeAsync(() =>
+            {
+                if (!_isShuttingDown && !_dispatcher.HasShutdownStarted && !_dispatcher.HasShutdownFinished)
+                {
+                    action();
+                }
+            }).Task;
+        }
+        catch (TaskCanceledException) when (_isShuttingDown || _dispatcher.HasShutdownStarted || _dispatcher.HasShutdownFinished)
+        {
+        }
+        catch (InvalidOperationException) when (_isShuttingDown || _dispatcher.HasShutdownStarted || _dispatcher.HasShutdownFinished)
+        {
+        }
     }
 }
