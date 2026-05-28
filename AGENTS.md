@@ -24,6 +24,7 @@ Main paths:
 Reference docs:
 
 - `README.md`: public project overview, quickstart, privacy notes, roadmap, and license summary.
+- `assets/brand`: public README banner plus SVG logo/mark assets.
 - `docs/architecture.md`: current system layout and data flow.
 - `docs/protocol.md`: JSON Lines wire protocol.
 - `docs/firmware.md`: NCS/Zephyr build and UF2 flashing workflow.
@@ -94,6 +95,7 @@ The app adds `ReceivedAtUtc` when a line is received. If this contract changes, 
 - Keep serial and simulator feeding the same Core pipeline.
 - Keep WPF UI work on the dispatcher thread.
 - `EchoTrace.App` uses the `WPF-UI` NuGet package. `App.xaml` owns WPF UI theme/control dictionaries, and `MainWindow` currently derives from `Wpf.Ui.Controls.FluentWindow`.
+- Keep brand assets project-local before referencing them. Generated images should be copied from `%USERPROFILE%\.codex\generated_images\...` into `assets/brand` or `src/EchoTrace.App/Assets/Brand`.
 - The live dashboard is still hosted in `MainWindow`; the page files under `Views/Pages` are navigation targets for the next shell split. Do not move the ScottPlot/serial lifecycle into a page without checking shutdown and navigation lifetime.
 - Theme support is split between WPF UI and EchoTrace resources. `MainViewModel.SelectedTheme` drives WPF UI's `ApplicationThemeManager`, local EchoTrace brushes, and ScottPlot palette updates. Keep charts readable in both Light and Dark whenever changing colors.
 - App UI preferences persist to `%LocalAppData%\EchoTrace\settings.json` through `EchoTrace.App.Services.AppSettingsStore`. This includes theme, source mode, selected port, and the last selected device key. Keep new general settings in that store unless they belong in capture/session storage.

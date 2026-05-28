@@ -1,5 +1,7 @@
 # EchoTrace
 
+![EchoTrace BLE signal observatory banner](assets/brand/echotrace-readme-banner.png)
+
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
 [![WPF](https://img.shields.io/badge/UI-WPF%20UI-0f766e.svg)](https://wpfui.lepo.co/)
@@ -45,6 +47,8 @@ Multi-receiver workflows, replay views, and richer BLE payload analysis are plan
 
 ```text
 EchoTrace/
+  assets/
+    brand/               README banner, SVG logo, and brand mark
   src/
     EchoTrace.App/       WPF UI desktop app
     EchoTrace.Core/      Protocol models, parser, simulator, RSSI aggregation

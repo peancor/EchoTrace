@@ -29,6 +29,7 @@ The simulator and serial reader feed the same parser and aggregation path, so UI
 - Supported themes are `Dark` and `Light`. `MainWindow` applies WPF UI's `ApplicationThemeManager` and then updates EchoTrace-specific brushes used by panels, tables, activity lists, and ScottPlot.
 - App preferences are persisted as JSON in `%LocalAppData%\EchoTrace\settings.json`.
 - Persisted V1 preferences include theme, source mode, selected port, last selected device key, chart window, minimum RSSI text, and present-only filtering.
+- Brand assets live in `assets/brand`; the README uses the generated hero banner and the app includes a project-local brand panel resource.
 - ScottPlot rendering is theme-aware; chart backgrounds, axes, grid lines, legends, and series colors are recalculated whenever the theme changes.
 
 ## Dashboard V1

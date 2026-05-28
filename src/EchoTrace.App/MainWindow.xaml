@@ -462,6 +462,12 @@
                 <StackPanel>
                     <TextBlock Text="Preview" FontSize="22" FontWeight="SemiBold" />
                     <TextBlock Text="The dashboard, tables, controls, and ScottPlot charts use the same theme palette." Foreground="{DynamicResource EchoMutedTextBrush}" Margin="0,4,0,22" TextWrapping="Wrap" />
+                    <Border Background="{DynamicResource EchoPanelAltBrush}" BorderBrush="{DynamicResource EchoBorderBrush}" BorderThickness="1" CornerRadius="6" Margin="0,0,0,16" ClipToBounds="True">
+                        <Image Source="/Assets/Brand/echotrace-brand-panel.png"
+                               Height="170"
+                               Stretch="UniformToFill"
+                               HorizontalAlignment="Stretch" />
+                    </Border>
                     <Border Background="{DynamicResource EchoPanelAltBrush}" BorderBrush="{DynamicResource EchoBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="18">
                         <StackPanel>
                             <TextBlock Text="{Binding SelectedTheme}" FontSize="34" FontWeight="SemiBold" />
