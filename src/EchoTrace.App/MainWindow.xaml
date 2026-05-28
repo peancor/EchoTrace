@@ -1,12 +1,14 @@
-<Window x:Class="EchoTrace.App.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:plot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
-        Title="EchoTrace" Height="900" Width="1480"
-        MinHeight="760" MinWidth="1180"
-        Background="#0D1117"
-        FontFamily="Segoe UI">
-    <Window.Resources>
+<ui:FluentWindow x:Class="EchoTrace.App.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:plot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 Title="EchoTrace" Height="900" Width="1480"
+                 MinHeight="760" MinWidth="1180"
+                 Background="#0D1117"
+                 ExtendsContentIntoTitleBar="True"
+                 FontFamily="Segoe UI">
+    <ui:FluentWindow.Resources>
         <SolidColorBrush x:Key="PanelBrush" Color="#111A22" />
         <SolidColorBrush x:Key="PanelAltBrush" Color="#16212B" />
         <SolidColorBrush x:Key="BorderBrushMuted" Color="#263746" />
@@ -29,15 +31,6 @@
         <Style x:Key="MetricPanel" TargetType="Border" BasedOn="{StaticResource Panel}">
             <Setter Property="Padding" Value="14" />
             <Setter Property="Margin" Value="0,0,10,0" />
-        </Style>
-
-        <Style TargetType="Button">
-            <Setter Property="Padding" Value="12,7" />
-            <Setter Property="Margin" Value="4,0" />
-            <Setter Property="Background" Value="#22313D" />
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-            <Setter Property="BorderBrush" Value="#385061" />
-            <Setter Property="BorderThickness" Value="1" />
         </Style>
 
         <Style TargetType="ComboBox">
@@ -80,10 +73,15 @@
             <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
             <Setter Property="Background" Value="#263746" />
         </Style>
-    </Window.Resources>
+        <Style TargetType="ui:Button">
+            <Setter Property="Margin" Value="4,0" />
+            <Setter Property="Padding" Value="12,7" />
+        </Style>
+    </ui:FluentWindow.Resources>
 
-    <Grid Margin="18">
+    <Grid Margin="18,8,18,18">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -91,22 +89,78 @@
             <RowDefinition Height="150" />
         </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0" LastChildFill="False">
-            <StackPanel DockPanel.Dock="Left">
-                <TextBlock Text="EchoTrace" FontSize="34" FontWeight="SemiBold" />
-                <TextBlock Text="{Binding StatusText}" Foreground="{StaticResource MutedTextBrush}" Margin="1,4,0,0" />
-            </StackPanel>
-            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ui:TitleBar Grid.Row="0"
+                         Title="EchoTrace"
+                         Height="42"
+                         Margin="-18,-8,-18,0" />
+            <DockPanel Grid.Row="1" LastChildFill="False" Margin="0,12,0,0">
+                <StackPanel DockPanel.Dock="Left">
+                    <TextBlock Text="EchoTrace" FontSize="34" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding StatusText}" Foreground="{StaticResource MutedTextBrush}" Margin="1,4,0,0" />
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                 <ComboBox ItemsSource="{Binding SourceModes}" SelectedItem="{Binding SelectedSourceMode}" />
                 <ComboBox ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}" />
-                <Button Content="{Binding ConnectButtonText}" Command="{Binding ToggleConnectionCommand}" />
-                <Button Content="{Binding CaptureButtonText}" Command="{Binding ToggleCaptureCommand}" />
-                <Button Content="Export CSV" Command="{Binding ExportCommand}" />
-                <Button Content="Refresh" Command="{Binding RefreshPortsCommand}" />
-            </StackPanel>
-        </DockPanel>
+                    <ui:Button Content="{Binding ConnectButtonText}"
+                               Icon="{ui:SymbolIcon Symbol=PlugConnected24}"
+                               Appearance="Primary"
+                               Command="{Binding ToggleConnectionCommand}" />
+                    <ui:Button Content="{Binding CaptureButtonText}"
+                               Icon="{ui:SymbolIcon Symbol=Record24}"
+                               Command="{Binding ToggleCaptureCommand}" />
+                    <ui:Button Content="Export CSV"
+                               Icon="{ui:SymbolIcon Symbol=ArrowDownload24}"
+                               Command="{Binding ExportCommand}" />
+                    <ui:Button Content="Refresh"
+                               Icon="{ui:SymbolIcon Symbol=ArrowClockwise24}"
+                               Command="{Binding RefreshPortsCommand}" />
+                </StackPanel>
+            </DockPanel>
+        </Grid>
 
-        <UniformGrid Grid.Row="1" Columns="6" Margin="0,16,0,14">
+        <Border Grid.Row="1" Style="{StaticResource Panel}" Padding="8" Margin="0,0,0,14">
+            <DockPanel LastChildFill="True">
+                <TextBlock DockPanel.Dock="Right"
+                           Text="{Binding ShellStatusText}"
+                           Foreground="{StaticResource MutedTextBrush}"
+                           VerticalAlignment="Center"
+                           Margin="12,0,4,0" />
+                <ListBox ItemsSource="{Binding ShellSections}"
+                         SelectedItem="{Binding SelectedShellSection}"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="IsEnabled" Value="{Binding IsAvailable}" />
+                            <Setter Property="Margin" Value="0,0,8,0" />
+                            <Setter Property="Padding" Value="10,7" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel MinWidth="118">
+                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Description}" Foreground="{StaticResource MutedTextBrush}" FontSize="11" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <UniformGrid Grid.Row="2" Columns="6" Margin="0,0,0,14">
             <Border Style="{StaticResource MetricPanel}">
                 <StackPanel>
                     <TextBlock Text="Events/s" Foreground="{StaticResource MutedTextBrush}" />
@@ -149,7 +203,7 @@
             </Border>
         </UniformGrid>
 
-        <Border Grid.Row="2" Style="{StaticResource Panel}" Padding="10" Margin="0,0,0,14">
+        <Border Grid.Row="3" Style="{StaticResource Panel}" Padding="10" Margin="0,0,0,14">
             <DockPanel LastChildFill="False">
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                     <TextBlock Text="Filter" Foreground="{StaticResource MutedTextBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
@@ -157,17 +211,22 @@
                     <TextBlock Text="Min RSSI" Foreground="{StaticResource MutedTextBrush}" VerticalAlignment="Center" Margin="14,0,6,0" />
                     <TextBox Text="{Binding MinimumRssiText, UpdateSourceTrigger=PropertyChanged}" Width="70" />
                     <CheckBox Content="Present only" IsChecked="{Binding ShowPresentOnly}" />
-                    <Button Content="Clear" Command="{Binding ClearFiltersCommand}" Margin="10,0,0,0" />
+                    <ui:Button Content="Clear"
+                               Icon="{ui:SymbolIcon Symbol=Dismiss24}"
+                               Command="{Binding ClearFiltersCommand}"
+                               Margin="10,0,0,0" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                     <TextBlock Text="Window" Foreground="{StaticResource MutedTextBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
                     <ComboBox ItemsSource="{Binding TimeWindowOptions}" SelectedItem="{Binding SelectedTimeWindow}" />
-                    <Button Content="{Binding ChartPauseButtonText}" Command="{Binding ToggleChartPauseCommand}" />
+                    <ui:Button Content="{Binding ChartPauseButtonText}"
+                               Icon="{ui:SymbolIcon Symbol=Pause24}"
+                               Command="{Binding ToggleChartPauseCommand}" />
                 </StackPanel>
             </DockPanel>
         </Border>
 
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.55*" />
                 <ColumnDefinition Width="1.15*" />
@@ -281,7 +340,7 @@
             </Grid>
         </Grid>
 
-        <Border Grid.Row="4" Style="{StaticResource Panel}" Margin="0,14,0,0" Padding="12">
+        <Border Grid.Row="5" Style="{StaticResource Panel}" Margin="0,14,0,0" Padding="12">
             <DockPanel>
                 <TextBlock DockPanel.Dock="Top" Text="Activity" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8" />
                 <ListBox ItemsSource="{Binding ActivityLog}"
@@ -291,4 +350,4 @@
             </DockPanel>
         </Border>
     </Grid>
-</Window>
+</ui:FluentWindow>

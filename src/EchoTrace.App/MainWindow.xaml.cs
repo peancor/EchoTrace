@@ -1,11 +1,11 @@
-using System.Windows;
 using System.Windows.Threading;
 using EchoTrace.App.ViewModels;
 using ScottPlot;
+using Wpf.Ui.Controls;
 
 namespace EchoTrace.App;
 
-public partial class MainWindow : Window
+public partial class MainWindow : FluentWindow
 {
     private readonly MainViewModel _viewModel;
     private readonly DispatcherTimer _chartTimer;

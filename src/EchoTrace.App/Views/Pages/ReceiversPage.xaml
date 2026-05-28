@@ -1,0 +1,12 @@
+<Page x:Class="EchoTrace.App.Views.Pages.ReceiversPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Receivers">
+    <Grid>
+        <TextBlock Text="Receivers"
+                   FontSize="24"
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center" />
+    </Grid>
+</Page>

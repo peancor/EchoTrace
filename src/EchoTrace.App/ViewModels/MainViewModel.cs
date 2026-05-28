@@ -29,6 +29,7 @@ public sealed class MainViewModel : ObservableObject
     private int _eventsThisSecond;
     private int _eventsPerSecond;
     private int _totalEvents;
+    private ShellSectionViewModel? _selectedShellSection;
     private bool _isConnected;
     private bool _isCapturing;
     private bool _showPresentOnly = true;
@@ -77,7 +78,16 @@ public sealed class MainViewModel : ObservableObject
             ApplyFiltersAndRanking();
         };
         _statsTimer.Start();
+        SelectedShellSection = ShellSections[0];
     }
+
+    public ObservableCollection<ShellSectionViewModel> ShellSections { get; } =
+    [
+        new("dashboard", "Dashboard", "Live BLE", true),
+        new("sessions", "Sessions", "Capture history", false),
+        new("receivers", "Receivers", "COM and nodes", false),
+        new("settings", "Settings", "Thresholds", false)
+    ];
 
     public ObservableCollection<string> SourceModes { get; } = ["Simulator", "Serial"];
     public ObservableCollection<string> TimeWindowOptions { get; } = ["10s", "30s", "2m", "5m"];
@@ -93,6 +103,24 @@ public sealed class MainViewModel : ObservableObject
     public AsyncCommand ExportCommand { get; }
     public AsyncCommand RefreshPortsCommand { get; }
     public event EventHandler? ChartChanged;
+
+    public ShellSectionViewModel? SelectedShellSection
+    {
+        get => _selectedShellSection;
+        set
+        {
+            if (value is not null && !value.IsAvailable)
+            {
+                AddActivity($"{value.Title} page is prepared for navigation but not enabled in V1.");
+                value = ShellSections[0];
+            }
+
+            if (SetProperty(ref _selectedShellSection, value))
+            {
+                OnPropertyChanged(nameof(ShellStatusText));
+            }
+        }
+    }
 
     public string SelectedSourceMode
     {
@@ -209,6 +237,7 @@ public sealed class MainViewModel : ObservableObject
     public string ConnectionStateText => _isConnected ? "Connected" : "Disconnected";
     public string StrongestDeviceText => RankedDevices.FirstOrDefault() is { } device ? $"{device.DisplayName} {device.CurrentRssi} dBm" : "No devices";
     public string SelectedChartTitle => SelectedDevice is null ? "Select a device" : $"{SelectedDevice.Name} {SelectedDevice.Address}";
+    public string ShellStatusText => SelectedShellSection is null ? "Dashboard" : SelectedShellSection.Title;
     public int TimeWindowSeconds => SelectedTimeWindow switch
     {
         "10s" => 10,

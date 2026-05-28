@@ -12,10 +12,11 @@ BLE advertisements -> EchoTrace.Node -> USB CDC JSON Lines -> EchoTrace.App -> S
 
 Main paths:
 
-- `src/EchoTrace.App`: .NET 10 WPF dashboard, MVVM, simulator/serial controls, live table/chart.
+- `src/EchoTrace.App`: .NET 10 WPF UI dashboard, MVVM, simulator/serial controls, live table/chart, and shell/page scaffolding.
 - `src/EchoTrace.Core`: protocol models, JSON Lines parser, simulator, RSSI aggregation.
 - `src/EchoTrace.Serial`: COM port discovery and async serial JSON Lines reader.
 - `src/EchoTrace.Storage`: SQLite capture sessions and CSV export.
+- `src/EchoTrace.App/Views/Pages`: WPF UI page targets prepared for Dashboard, Sessions, Receivers, and Settings navigation.
 - `tests/EchoTrace.Core.Tests`: parser, aggregator, and storage tests.
 - `firmware/EchoTrace.Node`: Zephyr/NCS firmware for nice!nano / Pro Micro nRF52840 UF2 boards.
 - `docs/`: project docs that should be updated with meaningful behavior changes.
@@ -91,6 +92,8 @@ The app adds `ReceivedAtUtc` when a line is received. If this contract changes, 
 - Preserve the simulator path. It is the fastest way to validate UI, storage, and charting without hardware.
 - Keep serial and simulator feeding the same Core pipeline.
 - Keep WPF UI work on the dispatcher thread.
+- `EchoTrace.App` uses the `WPF-UI` NuGet package. `App.xaml` owns WPF UI theme/control dictionaries, and `MainWindow` currently derives from `Wpf.Ui.Controls.FluentWindow`.
+- The live dashboard is still hosted in `MainWindow`; the page files under `Views/Pages` are navigation targets for the next shell split. Do not move the ScottPlot/serial lifecycle into a page without checking shutdown and navigation lifetime.
 - Keep chart rendering timer-driven. Do not render once per BLE event; event bursts should update buffers and let the UI timer paint.
 - Keep dashboard docs aligned with `docs/architecture.md` when changing filters, charts, ranking, or detail panels.
 - Prefer focused tests in `tests/EchoTrace.Core.Tests` for parser, aggregation, storage, and any protocol evolution.
