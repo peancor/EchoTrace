@@ -47,7 +47,15 @@ public sealed class DeviceRowViewModel : ObservableObject
 
     public void Apply(DeviceSummary summary)
     {
-        Name = string.IsNullOrWhiteSpace(summary.Name) ? "(unnamed)" : summary.Name;
+        string name = string.IsNullOrWhiteSpace(summary.Name) ? "(unnamed)" : summary.Name;
+        bool nameChanged = _name != name;
+        bool rssiChanged = _currentRssi != summary.CurrentRssi;
+        bool firstSeenChanged = _firstSeen != summary.FirstSeen;
+        bool lastSeenChanged = _lastSeen != summary.LastSeen;
+        bool rssiAvgChanged = Math.Abs(_rssiAvg - summary.RssiAvg) > 0.001;
+        bool presenceChanged = _isPresent != summary.IsPresent;
+
+        Name = name;
         CurrentRssi = summary.CurrentRssi;
         FirstSeen = summary.FirstSeen;
         LastSeen = summary.LastSeen;
@@ -56,11 +64,35 @@ public sealed class DeviceRowViewModel : ObservableObject
         RssiMax = summary.RssiMax;
         RssiAvg = summary.RssiAvg;
         IsPresent = summary.IsPresent;
-        OnPropertyChanged(nameof(RssiAvgText));
-        OnPropertyChanged(nameof(SignalPercent));
-        OnPropertyChanged(nameof(SignalState));
-        OnPropertyChanged(nameof(DisplayName));
-        OnPropertyChanged(nameof(FirstSeenLocal));
-        OnPropertyChanged(nameof(LastSeenLocal));
+
+        if (rssiAvgChanged)
+        {
+            OnPropertyChanged(nameof(RssiAvgText));
+        }
+
+        if (rssiChanged)
+        {
+            OnPropertyChanged(nameof(SignalPercent));
+        }
+
+        if (rssiChanged || presenceChanged)
+        {
+            OnPropertyChanged(nameof(SignalState));
+        }
+
+        if (nameChanged)
+        {
+            OnPropertyChanged(nameof(DisplayName));
+        }
+
+        if (firstSeenChanged)
+        {
+            OnPropertyChanged(nameof(FirstSeenLocal));
+        }
+
+        if (lastSeenChanged)
+        {
+            OnPropertyChanged(nameof(LastSeenLocal));
+        }
     }
 }

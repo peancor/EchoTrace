@@ -42,5 +42,7 @@ The WPF dashboard separates ingestion from rendering:
 - A second live chart tracks events per second.
 - Device filtering supports name/address text, minimum RSSI, and present-only mode.
 - The right panel shows selected-device detail and an RSSI ranking for quick triage.
+- Live device lists use incremental `ObservableCollection` reconciliation instead of full clear/reload refreshes. Row view models are updated in place, the table keeps a stable receiver/name/address order, and only the RSSI ranking reorders by signal strength.
+- Device selection is preserved across live updates whenever the selected device still passes the active filters.
 
 This keeps the UI responsive when the receiver emits many advertisements per second.

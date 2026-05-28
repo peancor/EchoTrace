@@ -252,6 +252,11 @@ public sealed class MainViewModel : ObservableObject
         get => _selectedDevice;
         set
         {
+            if (value is null && _selectedDevice is not null && FilteredDevices.Contains(_selectedDevice))
+            {
+                return;
+            }
+
             if (SetProperty(ref _selectedDevice, value))
             {
                 OnPropertyChanged(nameof(SelectedRssiPoints));
@@ -526,7 +531,6 @@ public sealed class MainViewModel : ObservableObject
             row = new DeviceRowViewModel(summary);
             _deviceRows.Add(key, row);
             Devices.Add(row);
-            FilteredDevices.Add(row);
             if (SelectedDevice is null)
             {
                 SelectedDevice = row;
@@ -561,23 +565,38 @@ public sealed class MainViewModel : ObservableObject
     {
         int minimumRssi = int.TryParse(MinimumRssiText, out int parsedRssi) ? parsedRssi : -100;
         string filter = FilterText.Trim();
+        int previousVisibleCount = FilteredDevices.Count;
         DeviceRowViewModel[] filtered = Devices
             .Where(device => !ShowPresentOnly || device.IsPresent)
             .Where(device => device.CurrentRssi >= minimumRssi)
             .Where(device => string.IsNullOrWhiteSpace(filter) ||
                              device.Address.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
                              (device.Name?.Contains(filter, StringComparison.OrdinalIgnoreCase) ?? false))
-            .OrderByDescending(device => device.CurrentRssi)
+            .OrderBy(device => device.ReceiverId, StringComparer.OrdinalIgnoreCase)
             .ThenBy(device => device.DisplayName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(device => device.Address, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        ReplaceCollection(FilteredDevices, filtered);
-        ReplaceCollection(RankedDevices, filtered.Take(8));
+        DeviceRowViewModel[] ranked = filtered
+            .OrderByDescending(device => device.CurrentRssi)
+            .ThenBy(device => device.DisplayName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(device => device.Address, StringComparer.OrdinalIgnoreCase)
+            .Take(8)
+            .ToArray();
+
+        ReconcileCollection(FilteredDevices, filtered);
+        ReconcileCollection(RankedDevices, ranked);
+
         if (SelectedDevice is null || !filtered.Contains(SelectedDevice))
         {
             SelectedDevice = filtered.FirstOrDefault();
         }
-        OnPropertyChanged(nameof(VisibleDeviceCount));
+
+        if (previousVisibleCount != FilteredDevices.Count)
+        {
+            OnPropertyChanged(nameof(VisibleDeviceCount));
+        }
+
         OnPropertyChanged(nameof(StrongestDeviceText));
     }
 
@@ -592,18 +611,34 @@ public sealed class MainViewModel : ObservableObject
         }
     }
 
-    private static void ReplaceCollection<T>(ObservableCollection<T> target, IEnumerable<T> items)
+    private static void ReconcileCollection<T>(ObservableCollection<T> target, IReadOnlyList<T> desired)
     {
-        T[] desired = items.ToArray();
         if (target.SequenceEqual(desired))
         {
             return;
         }
 
-        target.Clear();
-        foreach (T item in desired)
+        for (int index = target.Count - 1; index >= 0; index--)
         {
-            target.Add(item);
+            if (!desired.Contains(target[index]))
+            {
+                target.RemoveAt(index);
+            }
+        }
+
+        for (int desiredIndex = 0; desiredIndex < desired.Count; desiredIndex++)
+        {
+            T item = desired[desiredIndex];
+            int currentIndex = target.IndexOf(item);
+
+            if (currentIndex < 0)
+            {
+                target.Insert(desiredIndex, item);
+            }
+            else if (currentIndex != desiredIndex)
+            {
+                target.Move(currentIndex, desiredIndex);
+            }
         }
     }
 
